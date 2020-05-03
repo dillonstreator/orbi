@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
 import validator from "validator";
 import { onchangeText } from "../../utils/on-change";
 import { withRouter } from "react-router-dom";

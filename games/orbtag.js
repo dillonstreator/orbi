@@ -39,7 +39,10 @@ module.exports = (game) => {
 		game.state = constants.GAME_STATES.WAITING_FOR_PLAYERS;
 		game.stateStartedAt = null;
 		game.players.playing.forEach((player) => {
-			player.socket.emit("game_update_state", game.state);
+			player.socket.emit("game_update_state", {
+				...game.state,
+				stateStartedAt: game.stateStartedAt,
+			});
 			player.socket.emit("game_update_players", []);
 		});
 		return;
@@ -82,10 +85,21 @@ module.exports = (game) => {
 			game.players.itPlayer.it = true;
 
 			// UNFREEZE ANYONE THAT'S FROZEN
-			game.players.playing.forEach((player) => (player.frozen = false));
+			game.players.playing.forEach((player) => {
+				const isItPlayer = player.name === game.players.itPlayer.name;
+				if (isItPlayer) {
+					player.socket.emit("game_state_message", "You're it!")
+				} else {
+					player.socket.emit("game_state_message", "Run away!")
+				}
+				player.frozen = false
+			});
 		}
 		game.players.playing.forEach((player) =>
-			player.socket.emit("game_update_state", newState)
+			player.socket.emit("game_update_state", {
+				...newState,
+				stateStartedAt: game.stateStartedAt,
+			})
 		);
 	}
 

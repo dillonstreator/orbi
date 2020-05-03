@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { withRouter } from "react-router-dom";
 import classnames from "classnames";
+import styles from "../../assets/scss/orbtag.module.scss";
+import moment from "moment";
 
 const DOWN = "y+";
 const UP = "y-";
@@ -31,6 +33,7 @@ const Orbtag = ({ history }) => {
 	const [gameState, setGameState] = useState({});
 	const [gameConstants, setGameConstants] = useState({});
 	const [gameJoined, setGameJoined] = useState(false);
+	const roundMessageRef = useRef();
 
 	const logout = () => {
 		fetch("/api/users", {
@@ -58,9 +61,18 @@ const Orbtag = ({ history }) => {
 			});
 			setGameJoined(true);
 		});
+		socket.on("game_state_message", (msg) => {
+			roundMessageRef.current.innerHTML = msg;
+			roundMessageRef.current.classList.remove(styles.hidden);
+			roundMessageRef.current.classList.add(styles.roundMessage);
+			setTimeout(() => {
+				roundMessageRef.current.classList.remove(styles.roundMessage);
+				roundMessageRef.current.classList.add(styles.hidden);
+			}, 5000);
+		});
 		socket.emit("game_join", { gameId: 0 });
 
-		const movemetListener = (evt) => {
+		const movementListener = (evt) => {
 			const { key } = evt;
 			const direction = MOVEMENT_MAP[key];
 			if (!direction) return;
@@ -76,12 +88,12 @@ const Orbtag = ({ history }) => {
 			if (!BOOST_MAP[key]) return;
 			socket.emit("user_update_boosting", false);
 		};
-		window.document.addEventListener("keydown", movemetListener);
+		window.document.addEventListener("keydown", movementListener);
 		window.document.addEventListener("keydown", applyBoostListener);
 		window.document.addEventListener("keyup", removeBoostListener);
 		return () => {
 			socket.disconnect();
-			window.document.removeEventListener("keydown", movemetListener);
+			window.document.removeEventListener("keydown", movementListener);
 			window.document.removeEventListener("keydown", applyBoostListener);
 			window.document.removeEventListener("keyup", removeBoostListener);
 		};
@@ -90,7 +102,8 @@ const Orbtag = ({ history }) => {
 	if (!gameJoined) return <p>loading...</p>;
 
 	const { name } = history.location.state;
-	const { boost = 100 } = players.find(({ name: n }) => n === name) || {};
+    const { boost = 100 } = players.find(({ name: n }) => n === name) || {};
+    const waitingForPlayers = gameState.NAME === "Waiting for players";
 
 	return (
 		<div
@@ -131,6 +144,23 @@ const Orbtag = ({ history }) => {
 						}}
 					></div>
 				))}
+				<div
+					style={{
+						backgroundColor: "transparent",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						position: "absolute",
+						height: "100%",
+						width: "100%",
+					}}
+				>
+                    {waitingForPlayers && (<div style={{ height: "100%", width: "100%", borderRadius: gameConstants.PLAYER_SIZE, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                        <h2>Waiting for more players to join...</h2>
+                        <InviteLink />
+                    </div>)}
+					<h2 ref={roundMessageRef}></h2>
+				</div>
 			</div>
 			<div
 				style={{
@@ -160,10 +190,20 @@ const Orbtag = ({ history }) => {
 	);
 };
 
-const GameState = ({ NAME }) => {
+const subject = encodeURI("Come play orbtag with me!");
+const baseUrl = encodeURI(process.env.BASE_URL || "https://orbiapp.herokuapp.com");
+const body = encodeURI(`I need more players to join me in orbtag at ${baseUrl}\n\n<a href="${baseUrl}">${baseUrl}</a>`);
+const InviteLink = () => <a href={`mailto:?subject=${subject}&body=${body}`}>Invite Friends</a>
+
+const GameState = ({ DURATION_IN_MS, stateStartedAt, NAME }) => {
+    let timeRemaining = null;
+    if (stateStartedAt) {
+        timeRemaining = moment(stateStartedAt).add(DURATION_IN_MS, "ms").diff(moment(), "seconds")
+    }
+
 	return (
 		<div>
-			<p>{NAME}</p>
+			<p>{NAME} {timeRemaining}</p>
 		</div>
 	);
 };
