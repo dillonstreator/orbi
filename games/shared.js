@@ -14,7 +14,7 @@ const POSITIVE_Y_THRESHOLD = MAP_HEIGHT - PLAYER_SIZE;
 const NEGATIVE_Y_THRESHOLD = 0;
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
-const FRAME_RATE_IN_MS = 30;
+const FRAME_RATE_IN_MS = 50;
 const DIRECTIONS = ['x+','x-','y+','y-'];
 const DIRECTIONS_MAP = DIRECTIONS.reduce((acc,dir) => ({ ...acc, [dir]: true }), {});
 

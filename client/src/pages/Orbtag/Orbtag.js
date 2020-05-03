@@ -23,6 +23,9 @@ const BOOST_MAP = {
 	" ": true,
 };
 
+const IS_DEV = process.env.NODE_ENV !== "production";
+const wsUrl = IS_DEV ? "localhost:5000" : undefined;
+
 const Orbtag = ({ history }) => {
 	const [players, setPlayers] = useState([]);
 	const [gameState, setGameState] = useState({});
@@ -38,7 +41,7 @@ const Orbtag = ({ history }) => {
 	};
 
 	useEffect(() => {
-		const socket = io.connect();
+		const socket = io.connect(wsUrl);
 		socket.on("disconnect", logout);
 		socket.on("game_update_state", (state) => {
 			setGameState((prev) => ({
