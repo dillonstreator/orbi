@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import validator from "validator";
 import { onchangeText } from "../../utils/on-change";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 
 function getColor() {
 	return (
@@ -121,6 +121,7 @@ const Home = ({ history }) => {
 				<button style={{ margin: 5, fontSize: 25 }} onClick={submitName}>
 					Play!
 				</button>
+				<Link style={{ margin: "10px 0px", color: "#ddd" }} to="/orbtag/instructions">instructions</Link>
 			</div>
 		</div>
 	);
