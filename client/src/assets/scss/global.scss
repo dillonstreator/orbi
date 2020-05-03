@@ -1,5 +1,64 @@
+$background-color: #222;
+$color: #ddd;
+
 html,
 body {
 	margin: 0;
 	padding: 0;
+	color: $color;
+	background-color: $background-color;
+	font-family: 'Montserrat', sans-serif;
+}
+
+.pulse {
+	display: block;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 0 0 rgba(200, 200, 200, 0.5);
+	animation: pulse 1s infinite;
+}
+@-webkit-keyframes pulse {
+	0% {
+		-webkit-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+	70% {
+		-webkit-box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+	}
+	100% {
+		-webkit-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+	}
+}
+@keyframes pulse {
+	0% {
+		-moz-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+	70% {
+		-moz-box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+		box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+	}
+	100% {
+		-moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+	}
+}
+
+button {
+	display: inline-block;
+	padding: 0.35em 1.2em;
+	border: 0.1em solid $color;
+	margin: 0 0.3em 0.3em 0;
+	border-radius: 0.12em;
+	box-sizing: border-box;
+	text-decoration: none;
+	font-weight: 300;
+	color: $color;
+	background-color: $background-color;
+	text-align: center;
+	transition: all 0.2s;
+	cursor: pointer;
+}
+button:hover {
+	color: $background-color;
+	background-color: $color;
 }

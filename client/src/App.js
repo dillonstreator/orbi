@@ -1,18 +1,16 @@
-import React, { useEffect } from "react";
-
-import styles from "./styles.module.scss";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "./pages/Home/Home";
+import Orbtag from "./pages/Orbtag/Orbtag";
 
 function App() {
-	useEffect(() => {
-		fetch("/health")
-			.then(console.log)
-			.catch(console.error);
-	}, []);
-
 	return (
-		<div className={styles.App}>
-			<h1>Orbi</h1>
-		</div>
+		<Router>
+			<Switch>
+				<Route path="/" exact component={Home} />
+				<Route path="/orbtag" component={Orbtag} />
+			</Switch>
+		</Router>
 	);
 }
 
