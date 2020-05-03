@@ -38,7 +38,7 @@ const Orbtag = ({ history }) => {
 	};
 
 	useEffect(() => {
-		const socket = io.connect("localhost:5000");
+		const socket = io.connect();
 		socket.on("disconnect", logout);
 		socket.on("game_update_state", (state) => {
 			setGameState((prev) => ({
