@@ -83,12 +83,14 @@ const Orbtag = ({ history }) => {
 		socket.emit("game_join", { gameId: 0 });
 
 		const movementListener = (evt) => {
+            if (messageWindowOpen) return;
 			const { key } = evt;
 			const direction = MOVEMENT_MAP[key];
 			if (!direction) return;
 			socket.emit("user_update_direction", direction);
 		};
 		const applyBoostListener = (evt) => {
+            if (messageWindowOpen) return;
 			const { key } = evt;
 			if (!BOOST_MAP[key]) return;
 			socket.emit("user_update_boosting", true);

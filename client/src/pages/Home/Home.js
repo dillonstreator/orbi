@@ -3,17 +3,6 @@ import validator from "validator";
 import { onchangeText } from "../../utils/on-change";
 import { withRouter } from "react-router-dom";
 
-// function getColor() {
-// 	return (
-// 		"hsl(" +
-// 		360 * Math.random() +
-// 		"," +
-// 		(25 + 70 * Math.random()) +
-// 		"%," +
-// 		(85 + 10 * Math.random()) +
-// 		"%)"
-// 	);
-// }
 function getColor() {
 	return (
 		"hsl(" +
@@ -21,7 +10,7 @@ function getColor() {
 		"," +
 		(155 * Math.random()) +
 		"%," +
-		(85 + 10 * Math.random()) +
+		(75 + 10 * Math.random()) +
 		"%)"
 	);
 }
