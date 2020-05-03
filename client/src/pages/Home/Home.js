@@ -92,7 +92,7 @@ const Home = ({ history }) => {
 					alignItems: "center",
 				}}
 			>
-				<p style={{ fontSize: 20 }}>your color</p>
+				{/* <p style={{ fontSize: 20 }}>color</p> */}
 				<div
 					style={{
 						backgroundColor: color,
@@ -112,7 +112,7 @@ const Home = ({ history }) => {
 					alignItems: "center",
 				}}
 			>
-				<p style={{ fontSize: 20 }}>your name</p>
+				<p style={{ fontSize: 20 }}>name</p>
 				<input
 					style={{ fontSize: 25, padding: 5, borderRadius: 5, textAlign: "center" }}
 					type="text"
