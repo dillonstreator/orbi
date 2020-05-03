@@ -51,8 +51,15 @@ module.exports = (game) => {
 
 	// UPDATE THE NEW GAME STATE
 	const timeInState = moment().diff(game.stateStartedAt);
+	const allPlayersFrozen = game.players.playing.every(player => {
+		let isItPlayer = false;
+		try {
+			isItPlayer = player.name === game.players.itPlayer.name;
+		} catch (e) {}
+		return isItPlayer || player.frozen;
+	});
 	const finishedWithState =
-		!game.stateStartedAt || timeInState >= game.state.DURATION_IN_MS;
+		!game.stateStartedAt || allPlayersFrozen || timeInState >= game.state.DURATION_IN_MS;
 	if (finishedWithState) {
 		game.stateStartedAt = moment();
 		const newState =
@@ -83,7 +90,7 @@ module.exports = (game) => {
 				try {
 					isItPlayer = player.name === game.players.itPlayer.name;
 				} catch (e) {}
-				if (!isItPlayer && game.prevState !== constants.GAME_STATES.WAITING_FOR_PLAYERS && !player.frozen) player.points += game.players.playing.length - 1;
+				if (!isItPlayer && game.prevState.NAME !== constants.GAME_STATES.WAITING_FOR_PLAYERS.NAME && !player.frozen) player.points += game.players.playing.length - 1;
 			})
 
 			// SELECT NEW PLAYER TO BE "IT"
