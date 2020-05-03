@@ -92,7 +92,6 @@ const Home = ({ history }) => {
 					alignItems: "center",
 				}}
 			>
-				{/* <p style={{ fontSize: 20 }}>color</p> */}
 				<div
 					style={{
 						backgroundColor: color,
