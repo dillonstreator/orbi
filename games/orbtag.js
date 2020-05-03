@@ -23,6 +23,7 @@ const addAttributesTo = (player) => {
 	player.boost = constants.BOOST_CAP;
 	player.direction =
 		constants.DIRECTIONS[rand.int(0, constants.DIRECTIONS.length - 1)];
+	player.points = 0;
 };
 
 module.exports = (game) => {
@@ -58,6 +59,7 @@ module.exports = (game) => {
 			game.state !== constants.GAME_STATES.COOLDOWN
 				? constants.GAME_STATES.COOLDOWN
 				: constants.GAME_STATES.PLAYING;
+		game.prevState = { ...game.state };
 		game.state = newState;
 		if (newState === constants.GAME_STATES.COOLDOWN) {
 			// JUST ENTERED COOLDOWN PHASE..
@@ -76,6 +78,14 @@ module.exports = (game) => {
 				game.players.waiting = [];
 			}
 
+			game.players.playing.forEach(player => {
+				let isItPlayer = true;
+				try {
+					isItPlayer = player.name === game.players.itPlayer.name;
+				} catch (e) {}
+				if (!isItPlayer && game.prevState !== constants.GAME_STATES.WAITING_FOR_PLAYERS && !player.frozen) player.points += game.players.playing.length - 1;
+			})
+
 			// SELECT NEW PLAYER TO BE "IT"
 			try {
 				game.players.itPlayer.it = false;
@@ -83,16 +93,16 @@ module.exports = (game) => {
 			game.players.itPlayer =
 				game.players.playing[rand.int(0, game.players.playing.length - 1)];
 			game.players.itPlayer.it = true;
-
+			
 			// UNFREEZE ANYONE THAT'S FROZEN
 			game.players.playing.forEach((player) => {
 				const isItPlayer = player.name === game.players.itPlayer.name;
 				if (isItPlayer) {
-					player.socket.emit("game_state_message", "You're it!")
+					player.socket.emit("game_state_message", "You're it!");
 				} else {
-					player.socket.emit("game_state_message", "Run away!")
+					player.socket.emit("game_state_message", "Run away!");
 				}
-				player.frozen = false
+				player.frozen = false;
 			});
 		}
 		game.players.playing.forEach((player) =>
@@ -124,6 +134,7 @@ module.exports = (game) => {
 		) {
 			logger.info(`${game.players.itPlayer.name} froze ${player.name}`);
 			player.frozen = true;
+			game.players.itPlayer.points += 2;
 			return; // exit as we will not be updating this players position
 		}
 
@@ -163,7 +174,7 @@ module.exports = (game) => {
 
 	// SEND UPDATED POSITION INFORMATION TO PLAYING SOCKETS
 	const updatedPlayers = game.players.playing.map(
-		({ frozen, it, x, y, name, color, boosting, boost, direction }) => ({
+		({ frozen, it, x, y, name, color, boosting, boost, direction, points }) => ({
 			frozen,
 			it,
 			x,
@@ -173,6 +184,7 @@ module.exports = (game) => {
 			boosting,
 			boost,
 			direction,
+			points,
 		})
 	);
 	game.players.playing.forEach((player) =>

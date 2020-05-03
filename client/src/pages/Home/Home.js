@@ -41,6 +41,10 @@ const Home = ({ history }) => {
 			alert("Please enter your username");
 			return;
 		}
+		if (name.length > 12) {
+			alert("Max 12 characters for name");
+			return;
+		}
 		if (!validator.isAlphanumeric(name)) {
 			alert("name must contain only alphanumeric characters");
 			return;

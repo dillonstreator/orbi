@@ -34,9 +34,9 @@ const Orbtag = ({ history }) => {
 	const [gameState, setGameState] = useState({});
 	const [gameConstants, setGameConstants] = useState({});
 	const [gameJoined, setGameJoined] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [newMessagesCount, setNewMessagesCount] = useState(0);
-    const [messageWindowOpen, setMessageWindowOpen] = useState(false);
+	const [messages, setMessages] = useState([]);
+	const [newMessagesCount, setNewMessagesCount] = useState(0);
+	const [messageWindowOpen, setMessageWindowOpen] = useState(false);
 	const roundMessageRef = useRef();
 	const socketRef = useRef();
 
@@ -77,20 +77,20 @@ const Orbtag = ({ history }) => {
 			}, 5000);
 		});
 		socket.on("user_message_receive", (msg) => {
-            setNewMessagesCount(prev => prev + 1);
+			setNewMessagesCount((prev) => prev + 1);
 			setMessages((prev) => [...prev, { ...msg, author: "them" }]);
 		});
 		socket.emit("game_join", { gameId: 0 });
 
 		const movementListener = (evt) => {
-            if (messageWindowOpen) return;
+			if (messageWindowOpen) return;
 			const { key } = evt;
 			const direction = MOVEMENT_MAP[key];
 			if (!direction) return;
 			socket.emit("user_update_direction", direction);
 		};
 		const applyBoostListener = (evt) => {
-            if (messageWindowOpen) return;
+			if (messageWindowOpen) return;
 			const { key } = evt;
 			if (!BOOST_MAP[key]) return;
 			socket.emit("user_update_boosting", true);
@@ -104,6 +104,7 @@ const Orbtag = ({ history }) => {
 		window.document.addEventListener("keydown", applyBoostListener);
 		window.document.addEventListener("keyup", removeBoostListener);
 		return () => {
+			logout();
 			socket.disconnect();
 			window.document.removeEventListener("keydown", movementListener);
 			window.document.removeEventListener("keydown", applyBoostListener);
@@ -116,11 +117,11 @@ const Orbtag = ({ history }) => {
 	const sendMessage = (msg) => {
 		setMessages((prev) => [...prev, msg]);
 		if (socketRef.current) socketRef.current.emit("user_message_send", msg);
-    };
-    const messageWindowClick = () => {
-        setMessageWindowOpen(prev => !prev);
-        setNewMessagesCount(0);
-    }
+	};
+	const messageWindowClick = () => {
+		setMessageWindowOpen((prev) => !prev);
+		setNewMessagesCount(0);
+	};
 
 	const { name } = history.location.state;
 	const { boost = 100 } = players.find(({ name: n }) => n === name) || {};
@@ -194,6 +195,35 @@ const Orbtag = ({ history }) => {
 					)}
 					<h2 ref={roundMessageRef}></h2>
 				</div>
+				<div style={{ position: "absolute", top: 0, left: -200 }}>
+					<table>
+						<thead>
+							<th></th>
+							<th>points</th>
+						</thead>
+						<tbody>
+							{players
+								.sort((a, b) => b.points - a.points)
+								.map(({ points, color, name }) => (
+									<tr>
+										<td>
+											<span
+												style={{
+													backgroundColor: color,
+													borderRadius: gameConstants.PLAYER_SIZE,
+													padding: "5px 10px",
+													color: "#222",
+												}}
+											>
+												{name}
+											</span>
+										</td>
+										<td>{points}</td>
+									</tr>
+								))}
+						</tbody>
+					</table>
+				</div>
 			</div>
 			<div
 				style={{
@@ -218,19 +248,20 @@ const Orbtag = ({ history }) => {
 					BOOST (spacebar)
 				</span>
 			</div>
-            <div className="chat-window">
-                <Launcher
-                    agentProfile={{
-                        teamName: "Chat",
-                    }}
-                    onMessageWasSent={sendMessage}
-                    messageList={messages}
-                    showEmoji
-                    newMessagesCount={newMessagesCount}
-                    isOpen={messageWindowOpen}
-                    handleClick={messageWindowClick}
-                />
-            </div>
+			<div className="chat-window">
+				<Launcher
+					agentProfile={{
+						teamName: "Chat",
+					}}
+					onMessageWasSent={sendMessage}
+					messageList={messages}
+					showEmoji
+					newMessagesCount={newMessagesCount}
+					isOpen={messageWindowOpen}
+					handleClick={messageWindowClick}
+					mute
+				/>
+			</div>
 			<button onClick={logout}>Logout</button>
 		</div>
 	);
