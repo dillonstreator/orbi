@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const requestTimer = require("./middlewares/request-timer");
 const pathLogger = require("./middlewares/path-logger");
-const uuid = require("uuid/v4");
+const uuid = require("uuid");
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const moment = require("moment");
@@ -38,7 +38,7 @@ app.post("/api/users", (req, res) => {
 	if (Object.values(global.users).some(({ name: n }) => n === name))
 		return res.status(400).json({ error: "That name is already in use" });
 
-	const sessionId = uuid();
+	const sessionId = uuid.v4();
 	global.users[sessionId] = {
 		sessionId,
 		name,
