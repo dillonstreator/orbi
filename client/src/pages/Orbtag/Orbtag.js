@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { withRouter } from "react-router-dom";
+import { Launcher } from "react-chat-window";
 import classnames from "classnames";
 import styles from "../../assets/scss/orbtag.module.scss";
 import moment from "moment";
@@ -33,7 +34,11 @@ const Orbtag = ({ history }) => {
 	const [gameState, setGameState] = useState({});
 	const [gameConstants, setGameConstants] = useState({});
 	const [gameJoined, setGameJoined] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [newMessagesCount, setNewMessagesCount] = useState(0);
+    const [messageWindowOpen, setMessageWindowOpen] = useState(false);
 	const roundMessageRef = useRef();
+	const socketRef = useRef();
 
 	const logout = () => {
 		fetch("/api/users", {
@@ -45,6 +50,7 @@ const Orbtag = ({ history }) => {
 
 	useEffect(() => {
 		const socket = io.connect(wsUrl);
+		socketRef.current = socket;
 		socket.on("disconnect", logout);
 		socket.on("game_update_state", (state) => {
 			setGameState((prev) => ({
@@ -69,6 +75,10 @@ const Orbtag = ({ history }) => {
 				roundMessageRef.current.classList.remove(styles.roundMessage);
 				roundMessageRef.current.classList.add(styles.hidden);
 			}, 5000);
+		});
+		socket.on("user_message_receive", (msg) => {
+            setNewMessagesCount(prev => prev + 1);
+			setMessages((prev) => [...prev, { ...msg, author: "them" }]);
 		});
 		socket.emit("game_join", { gameId: 0 });
 
@@ -101,9 +111,18 @@ const Orbtag = ({ history }) => {
 
 	if (!gameJoined) return <p>loading...</p>;
 
+	const sendMessage = (msg) => {
+		setMessages((prev) => [...prev, msg]);
+		if (socketRef.current) socketRef.current.emit("user_message_send", msg);
+    };
+    const messageWindowClick = () => {
+        setMessageWindowOpen(prev => !prev);
+        setNewMessagesCount(0);
+    }
+
 	const { name } = history.location.state;
-    const { boost = 100 } = players.find(({ name: n }) => n === name) || {};
-    const waitingForPlayers = gameState.NAME === "Waiting for players";
+	const { boost = 100 } = players.find(({ name: n }) => n === name) || {};
+	const waitingForPlayers = gameState.NAME === "Waiting for players";
 
 	return (
 		<div
@@ -155,10 +174,22 @@ const Orbtag = ({ history }) => {
 						width: "100%",
 					}}
 				>
-                    {waitingForPlayers && (<div style={{ height: "100%", width: "100%", borderRadius: gameConstants.PLAYER_SIZE, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                        <h2>Waiting for more players to join...</h2>
-                        <InviteLink />
-                    </div>)}
+					{waitingForPlayers && (
+						<div
+							style={{
+								height: "100%",
+								width: "100%",
+								borderRadius: gameConstants.PLAYER_SIZE,
+								display: "flex",
+								flexDirection: "column",
+								alignItems: "center",
+								justifyContent: "center",
+							}}
+						>
+							<h2>Waiting for more players to join...</h2>
+							<InviteLink />
+						</div>
+					)}
 					<h2 ref={roundMessageRef}></h2>
 				</div>
 			</div>
@@ -185,25 +216,48 @@ const Orbtag = ({ history }) => {
 					BOOST (spacebar)
 				</span>
 			</div>
+            <div className="chat-window">
+                <Launcher
+                    agentProfile={{
+                        teamName: "Chat",
+                    }}
+                    onMessageWasSent={sendMessage}
+                    messageList={messages}
+                    showEmoji
+                    newMessagesCount={newMessagesCount}
+                    isOpen={messageWindowOpen}
+                    handleClick={messageWindowClick}
+                />
+            </div>
 			<button onClick={logout}>Logout</button>
 		</div>
 	);
 };
 
 const subject = encodeURI("Come play orbtag with me!");
-const baseUrl = encodeURI(process.env.BASE_URL || "https://orbiapp.herokuapp.com");
-const body = encodeURI(`I need more players to join me in orbtag at ${baseUrl}\n\n<a href="${baseUrl}">${baseUrl}</a>`);
-const InviteLink = () => <a href={`mailto:?subject=${subject}&body=${body}`}>Invite Friends</a>
+const baseUrl = encodeURI(
+	process.env.BASE_URL || "https://orbiapp.herokuapp.com"
+);
+const body = encodeURI(
+	`I need more players to join me in orbtag at ${baseUrl}\n\n<a href="${baseUrl}">${baseUrl}</a>`
+);
+const InviteLink = () => (
+	<a href={`mailto:?subject=${subject}&body=${body}`}>Invite Friends</a>
+);
 
 const GameState = ({ DURATION_IN_MS, stateStartedAt, NAME }) => {
-    let timeRemaining = null;
-    if (stateStartedAt) {
-        timeRemaining = moment(stateStartedAt).add(DURATION_IN_MS, "ms").diff(moment(), "seconds")
-    }
+	let timeRemaining = null;
+	if (stateStartedAt) {
+		timeRemaining = moment(stateStartedAt)
+			.add(DURATION_IN_MS, "ms")
+			.diff(moment(), "seconds");
+	}
 
 	return (
 		<div>
-			<p>{NAME} {timeRemaining}</p>
+			<p>
+				{NAME} {timeRemaining}
+			</p>
 		</div>
 	);
 };

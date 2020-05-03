@@ -98,6 +98,9 @@ module.exports = (app) => {
 		socket.on("user_update_boosting", (isBoosting) => {
 			user.boosting = isBoosting;
 		});
+		socket.on("user_message_send", msg => {
+			socket.broadcast.emit("user_message_receive", msg);
+		});
 
 		socket.on("game_leave", () => {
 			cleanUserBy({ sessionId });

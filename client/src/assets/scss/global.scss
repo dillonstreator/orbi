@@ -62,3 +62,25 @@ button:hover {
 	color: $background-color;
 	background-color: $color;
 }
+
+
+.chat-window {
+	.sc-launcher {
+		background-color: rgb(17, 17, 17);
+	}
+	.sc-header {
+		background: #222;
+	}
+	.sc-header--close-button {
+		background: #333;
+		&:hover {
+			background: #444;
+		}
+	}
+	.sc-message--content.sent .sc-message--text {
+		background-color: #222;
+	}
+	.sc-message--avatar {
+		display: none;
+	}
+}
