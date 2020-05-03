@@ -35,6 +35,8 @@ app.post("/api/users", (req, res) => {
 	if (!name) return res.status(400).json({ error: "name is required" });
 	if (!validator.isAlphanumeric(name))
 		return res.status(400).json({ error: "name must be alphanumeric" });
+	if (name.length > 12)
+		return res.status(400).json({ error: "Max 12 characters for name" });
 	if (Object.values(global.users).some(({ name: n }) => n === name))
 		return res.status(400).json({ error: "That name is already in use" });
 
