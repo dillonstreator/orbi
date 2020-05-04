@@ -37,6 +37,7 @@ const Orbtag = ({ history }) => {
 	const [messages, setMessages] = useState([]);
 	const [newMessagesCount, setNewMessagesCount] = useState(0);
 	const [messageWindowOpen, setMessageWindowOpen] = useState(false);
+	const [gameFeed, setGameFeed] = useState([]);
 	const roundMessageRef = useRef();
 	const socketRef = useRef();
 
@@ -72,6 +73,7 @@ const Orbtag = ({ history }) => {
 			roundMessageRef.current.classList.remove(styles.hidden);
 			roundMessageRef.current.classList.add(styles.roundMessage);
 			setTimeout(() => {
+				if (!roundMessageRef.current) return;
 				roundMessageRef.current.classList.remove(styles.roundMessage);
 				roundMessageRef.current.classList.add(styles.hidden);
 			}, 5000);
@@ -79,6 +81,9 @@ const Orbtag = ({ history }) => {
 		socket.on("user_message_receive", (msg) => {
 			setNewMessagesCount((prev) => prev + 1);
 			setMessages((prev) => [...prev, { ...msg, author: "them" }]);
+		});
+		socket.on("game_feed_message", (msg) => {
+			setGameFeed((prev) => [msg, ...prev.slice(0, 19)]);
 		});
 		socket.emit("game_join", { gameId: 0 });
 
@@ -116,9 +121,10 @@ const Orbtag = ({ history }) => {
 
 	const sendMessage = (msg) => {
 		const { name, color } = history.location.state;
-		const myMessage = { ...msg, name, style: { backgroundColor: color } }
+		const myMessage = { ...msg, name, style: { backgroundColor: color } };
 		setMessages((prev) => [...prev, myMessage]);
-		if (socketRef.current) socketRef.current.emit("user_message_send", myMessage);
+		if (socketRef.current)
+			socketRef.current.emit("user_message_send", myMessage);
 	};
 	const messageWindowClick = () => {
 		setMessageWindowOpen((prev) => !prev);
@@ -198,37 +204,44 @@ const Orbtag = ({ history }) => {
 					<h2 ref={roundMessageRef}></h2>
 				</div>
 				{!waitingForPlayers && (
-					<div style={{ position: "absolute", top: 0, left: -200 }}>
-						<table className={styles.pointsTable}>
-							<thead>
-								<th></th>
-								<th>points</th>
-							</thead>
-							<tbody>
-								{players
-									.sort((a, b) => b.points - a.points)
-									.map(({ points, color, name }) => (
-										<tr>
-											<td>
-												<span
-													style={{
-														backgroundColor: color,
-														borderRadius:
-															gameConstants.PLAYER_SIZE,
-														padding: "5px 10px",
-														color: "#222",
-													}}
-												>
-													{name}
-												</span>
-											</td>
-											<td>{points}</td>
-										</tr>
-									))}
-							</tbody>
-						</table>
-					</div>
+					<>
+						<div style={{ position: "absolute", top: 0, left: -200 }}>
+							<table className={styles.pointsTable}>
+								<thead>
+									<th></th>
+									<th>points</th>
+								</thead>
+								<tbody>
+									{players
+										.sort((a, b) => b.points - a.points)
+										.map(({ points, color, name }) => (
+											<tr>
+												<td>
+													<span
+														style={{
+															backgroundColor: color,
+															borderRadius:
+																gameConstants.PLAYER_SIZE,
+															padding: "5px 10px",
+															color: "#222",
+														}}
+													>
+														{name}
+													</span>
+												</td>
+												<td>{points}</td>
+											</tr>
+										))}
+								</tbody>
+							</table>
+						</div>
+					</>
 				)}
+			</div>
+			<div style={{ position: "absolute", top: 100, right: 10, opacity: "0.9" }}>
+				{gameFeed.map((f) => (
+					<div dangerouslySetInnerHTML={{ __html: f }} />
+				))}
 			</div>
 			<div
 				style={{

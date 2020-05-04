@@ -109,6 +109,7 @@ module.exports = (game) => {
 				} else {
 					player.socket.emit("game_state_message", "Run away!");
 				}
+				player.socket.emit("game_feed_message", `<span><span style="color:${game.players.itPlayer.color};">${game.players.itPlayer.name}</span> is it!</span>`)
 				player.frozen = false;
 			});
 		}
@@ -140,6 +141,9 @@ module.exports = (game) => {
 			})
 		) {
 			logger.info(`${game.players.itPlayer.name} froze ${player.name}`);
+			game.players.playing.forEach(p => {
+				p.socket.emit("game_feed_message", `<span><span style="color:${game.players.itPlayer.color};">${game.players.itPlayer.name}</span> has frozen <span style="color:${player.color};">${player.name}</span></span>`);
+			})
 			player.frozen = true;
 			game.players.itPlayer.points += 2;
 			return; // exit as we will not be updating this players position

@@ -18,6 +18,13 @@ exports.cleanUserBy = function ({ name, sessionId }) {
 	const playingIdx = game.players.playing.findIndex((value) => value.sessionId === sessionId);
 	if (playingIdx != -1) {
 		game.players.playing.splice(playingIdx, 1);
-    }
+	}
+	
+	[
+		...game.players.waiting,
+		...game.players.playing,
+	].forEach(player => {
+		player.socket.emit("game_feed_message", `<span><span style="color:${user.color};">${user.name}</span> disconnected</span>`)
+	});
     return true;
 };

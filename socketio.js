@@ -87,6 +87,14 @@ module.exports = (app) => {
 				state: game.state,
 				stateStartedAt: game.stateStartedAt,
 			});
+			[...game.players.waiting, ...game.players.playing].forEach(
+				(player) => {
+					player.socket.emit(
+						"game_feed_message",
+						`<span><span style="color:${user.color};">${user.name}</span> queued up to play</span>`
+					);
+				}
+			);
 		});
 		socket.on("user_update_direction", (dir) => {
 			if (!CONSTANTS.DIRECTIONS_MAP[dir]) {
@@ -98,7 +106,7 @@ module.exports = (app) => {
 		socket.on("user_update_boosting", (isBoosting) => {
 			user.boosting = isBoosting;
 		});
-		socket.on("user_message_send", msg => {
+		socket.on("user_message_send", (msg) => {
 			socket.broadcast.emit("user_message_receive", msg);
 		});
 
