@@ -63,7 +63,7 @@ const Home = ({ history }) => {
 				if (res.error) {
 					alert(res.error);
 				} else {
-					history.push("/orbtag", { name });
+					history.push("/orbtag", { name, color });
 				}
 			})
 			.catch(console.error)

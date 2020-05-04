@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { withRouter } from "react-router-dom";
-import { Launcher } from "react-chat-window";
+import { Launcher } from "../../components";
 import classnames from "classnames";
 import styles from "../../assets/scss/orbtag.module.scss";
 import moment from "moment";
@@ -115,8 +115,10 @@ const Orbtag = ({ history }) => {
 	if (!gameJoined) return <p>loading...</p>;
 
 	const sendMessage = (msg) => {
-		setMessages((prev) => [...prev, msg]);
-		if (socketRef.current) socketRef.current.emit("user_message_send", msg);
+		const { name, color } = history.location.state;
+		const myMessage = { ...msg, name, style: { backgroundColor: color } }
+		setMessages((prev) => [...prev, myMessage]);
+		if (socketRef.current) socketRef.current.emit("user_message_send", myMessage);
 	};
 	const messageWindowClick = () => {
 		setMessageWindowOpen((prev) => !prev);
