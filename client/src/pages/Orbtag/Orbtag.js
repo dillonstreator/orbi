@@ -196,7 +196,7 @@ const Orbtag = ({ history }) => {
 					<h2 ref={roundMessageRef}></h2>
 				</div>
 				<div style={{ position: "absolute", top: 0, left: -200 }}>
-					<table>
+					<table className={styles.pointsTable}>
 						<thead>
 							<th></th>
 							<th>points</th>
