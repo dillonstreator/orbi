@@ -195,35 +195,38 @@ const Orbtag = ({ history }) => {
 					)}
 					<h2 ref={roundMessageRef}></h2>
 				</div>
-				<div style={{ position: "absolute", top: 0, left: -200 }}>
-					<table className={styles.pointsTable}>
-						<thead>
-							<th></th>
-							<th>points</th>
-						</thead>
-						<tbody>
-							{players
-								.sort((a, b) => b.points - a.points)
-								.map(({ points, color, name }) => (
-									<tr>
-										<td>
-											<span
-												style={{
-													backgroundColor: color,
-													borderRadius: gameConstants.PLAYER_SIZE,
-													padding: "5px 10px",
-													color: "#222",
-												}}
-											>
-												{name}
-											</span>
-										</td>
-										<td>{points}</td>
-									</tr>
-								))}
-						</tbody>
-					</table>
-				</div>
+				{!waitingForPlayers && (
+					<div style={{ position: "absolute", top: 0, left: -200 }}>
+						<table className={styles.pointsTable}>
+							<thead>
+								<th></th>
+								<th>points</th>
+							</thead>
+							<tbody>
+								{players
+									.sort((a, b) => b.points - a.points)
+									.map(({ points, color, name }) => (
+										<tr>
+											<td>
+												<span
+													style={{
+														backgroundColor: color,
+														borderRadius:
+															gameConstants.PLAYER_SIZE,
+														padding: "5px 10px",
+														color: "#222",
+													}}
+												>
+													{name}
+												</span>
+											</td>
+											<td>{points}</td>
+										</tr>
+									))}
+							</tbody>
+						</table>
+					</div>
+				)}
 			</div>
 			<div
 				style={{
