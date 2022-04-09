@@ -25,7 +25,7 @@
     "express": "^4.17.1",
     "helmet": "^3.22.0",
     "lodash": "^4.17.15",
-    "moment": "^2.25.1",
+    "moment": "^2.29.2",
     "socket.io": "^2.3.0",
     "uuid": "^8.0.0",
     "validator": "^13.0.0"
